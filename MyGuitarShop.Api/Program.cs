@@ -1,36 +1,64 @@
 
+using MyGuitarShop.Data.Ado.Factories;
+using System.Diagnostics;
+
 namespace MyGuitarShop.Api
 {
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
+	public static class Program
+	{
+		public static async Task Main(string[] args)
+		{
+			try
+			{
+				var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+				AddServices(builder);
 
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+				// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+				if (builder.Environment.IsDevelopment())
+				{
+					builder.Services.AddEndpointsApiExplorer();
+					builder.Services.AddSwaggerGen();
+				}
 
-            var app = builder.Build();
+				var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+				// Configure the HTTP request pipeline.
+				if (app.Environment.IsDevelopment())
+				{
+					app.UseSwagger();
+					app.UseSwaggerUI();
+				}
 
-            app.UseHttpsRedirection();
+				ConfigureApplication(app);
 
-            app.UseAuthorization();
+				await app.RunAsync();
+			}
+			catch (Exception e)
+			{
+				if (Debugger.IsAttached) Debugger.Break();
 
+				Console.WriteLine(e);
+				throw;
+			}
+		}
 
-            app.MapControllers();
+		private static void ConfigureApplication(WebApplication app)
+		{
+			app.UseHttpsRedirection();
 
-            app.Run();
-        }
-    }
+			app.UseAuthorization();
+
+			app.MapControllers();
+		}
+
+		private static void AddServices(WebApplicationBuilder builder)
+		{
+			var connectionString = builder.Configuration.GetConnectionString("MyGuitarShop");
+
+			builder.Services.AddSingleton(new SqlConnectionFactory(connectionString));
+
+			builder.Services.AddControllers();
+		}
+	}
 }
