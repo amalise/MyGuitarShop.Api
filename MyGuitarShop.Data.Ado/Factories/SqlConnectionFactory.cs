@@ -11,4 +11,11 @@ public class SqlConnectionFactory(string connectionString)
 		return connection;
 	}
 
+
+	public async Task<SqlConnection> OpenSqlConnectionAsync()
+	{
+		var connection = new SqlConnection(connectionString);
+		await connection.OpenAsync();
+		return connection;
+	}
 }

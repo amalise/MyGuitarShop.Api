@@ -1,6 +1,7 @@
 
 using Microsoft.AspNetCore.HttpLogging;
 using MyGuitarShop.Data.Ado.Factories;
+using MyGuitarShop.Data.Ado.Repositories;
 using System.Diagnostics;
 
 namespace MyGuitarShop.Api
@@ -78,6 +79,8 @@ namespace MyGuitarShop.Api
 			var connectionString = builder.Configuration.GetConnectionString("MyGuitarShop");
 
 			builder.Services.AddSingleton(new SqlConnectionFactory(connectionString));
+
+			builder.Services.AddScoped<ProductRepository>();
 
 			builder.Services.AddControllers();
 		}
